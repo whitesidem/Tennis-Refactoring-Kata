@@ -3,8 +3,8 @@ namespace Tennis
     public class TennisGame1 : ITennisGame
     {
 
-        public int P1Score { get; set; }
-        public int P2Score { get; set; }
+        private int P1Score { get; set; }
+        private int P2Score { get; set; }
 
         public void WonPoint(string playerName)
         {

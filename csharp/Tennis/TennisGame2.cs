@@ -2,132 +2,84 @@ namespace Tennis
 {
     public class TennisGame2 : ITennisGame
     {
-        private int p1point;
-        private int p2point;
+        private int P1Point { get; set; }
+        private int P2Point { get; set; }
 
-        private string p1res = "";
-        private string p2res = "";
-        private string player1Name;
-        private string player2Name;
-
-        public TennisGame2(string player1Name, string player2Name)
-        {
-            this.player1Name = player1Name;
-            p1point = 0;
-            this.player2Name = player2Name;
-        }
+        private const int TieBreakMinimumPoint = 3;
 
         public string GetScore()
         {
-            var score = "";
-            if (p1point == p2point && p1point < 3)
+            if (ArePointsEqual())
             {
-                if (p1point == 0)
-                    score = "Love";
-                if (p1point == 1)
-                    score = "Fifteen";
-                if (p1point == 2)
-                    score = "Thirty";
-                score += "-All";
-            }
-            if (p1point == p2point && p1point > 2)
-                score = "Deuce";
-
-            if (p1point > 0 && p2point == 0)
-            {
-                if (p1point == 1)
-                    p1res = "Fifteen";
-                if (p1point == 2)
-                    p1res = "Thirty";
-                if (p1point == 3)
-                    p1res = "Forty";
-
-                p2res = "Love";
-                score = p1res + "-" + p2res;
-            }
-            if (p2point > 0 && p1point == 0)
-            {
-                if (p2point == 1)
-                    p2res = "Fifteen";
-                if (p2point == 2)
-                    p2res = "Thirty";
-                if (p2point == 3)
-                    p2res = "Forty";
-
-                p1res = "Love";
-                score = p1res + "-" + p2res;
+                return GetScoreStatusWhenPointsAreEqual();
             }
 
-            if (p1point > p2point && p1point < 4)
+            if (BothPlayersOnOrUnderTieBreakThreshold())
             {
-                if (p1point == 2)
-                    p1res = "Thirty";
-                if (p1point == 3)
-                    p1res = "Forty";
-                if (p2point == 1)
-                    p2res = "Fifteen";
-                if (p2point == 2)
-                    p2res = "Thirty";
-                score = p1res + "-" + p2res;
-            }
-            if (p2point > p1point && p2point < 4)
-            {
-                if (p2point == 2)
-                    p2res = "Thirty";
-                if (p2point == 3)
-                    p2res = "Forty";
-                if (p1point == 1)
-                    p1res = "Fifteen";
-                if (p1point == 2)
-                    p1res = "Thirty";
-                score = p1res + "-" + p2res;
+                return GetScoreStatus(P1Point) + "-" + GetScoreStatus(P2Point);
             }
 
-            if (p1point > p2point && p2point >= 3)
-            {
-                score = "Advantage player1";
-            }
-
-            if (p2point > p1point && p1point >= 3)
-            {
-                score = "Advantage player2";
-            }
-
-            if (p1point >= 4 && p2point >= 0 && (p1point - p2point) >= 2)
-            {
-                score = "Win for player1";
-            }
-            if (p2point >= 4 && p1point >= 0 && (p2point - p1point) >= 2)
-            {
-                score = "Win for player2";
-            }
-            return score;
+            return GetAdvantageAndWinScoreStatus();
         }
 
-        public void SetP1Score(int number)
+        private string GetAdvantageAndWinScoreStatus()
         {
-            for (int i = 0; i < number; i++)
+            if (P1Point - P2Point == 1) return "Advantage player1";
+            if (P1Point - P2Point >= 2) return "Win for player1";
+            if (P2Point - P1Point == 1) return "Advantage player2";
+            return "Win for player2";
+        }
+
+        private bool BothPlayersOnOrUnderTieBreakThreshold()
+        {
+            return OnOrUnderTieBreakThreshold(P1Point) && OnOrUnderTieBreakThreshold(P2Point);
+        }
+
+        private string GetScoreStatusWhenPointsAreEqual()
+        {
+            if (UnderTieBreakThreshold(P1Point))
             {
-                P1Score();
+                return GetScoreStatus(P1Point) + "-All";
+            }
+            return "Deuce";
+        }
+
+        private bool OnOrUnderTieBreakThreshold(int point)
+        {
+            return point <= TieBreakMinimumPoint;
+        }
+
+        private bool UnderTieBreakThreshold(int point)
+        {
+            return point < TieBreakMinimumPoint;
+        }
+
+        private string GetScoreStatus(int points)
+        {
+            switch (points)
+            {
+                case 0: return "Love";
+                case 1: return "Fifteen";
+                case 2: return "Thirty";
+                case 3: return "Forty";
+                default: return "";
             }
         }
 
-        public void SetP2Score(int number)
+        private bool ArePointsEqual()
         {
-            for (var i = 0; i < number; i++)
-            {
-                P2Score();
-            }
+            return P1Point == P2Point;
         }
+
 
         private void P1Score()
         {
-            p1point++;
+            P1Point++;
         }
 
         private void P2Score()
         {
-            p2point++;
+            P2Point++;
         }
 
         public void WonPoint(string player)
